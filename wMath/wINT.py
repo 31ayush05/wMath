@@ -49,6 +49,11 @@ class wINT:
                 print('\b' * vLen, end='')
                 vLen = len(out)
                 print(out, end='')
+            if carry != 0:
+                out = str(carry) + out
+                print('\b' * vLen, end='')
+                vLen = len(out)
+                print(out, end='')
             print('\b' * (vLen + introLen), end='')
             return out
 
@@ -110,6 +115,52 @@ class wINT:
         else:  # (+) - (+)
             return wINT(SUB(self, self.val, other.val))
 
+    def __mul__(self, other):
+        negate = self.isNegative ^ other.isNegative
+        print('MUL ' + self.val + ' * ' + other.val + ' = ', end='')
+        introLen = 10 + len(self.val + other.val)
+        vLen = 0
+        a, b = self.unify(self.val, other.val)
+        l = len(a)
+        mX = 2 * (l - 1)
+        se = []
+        carry = wINT(0)
+        out = ''
+        for m in range(2 * l - 1):
+            cVal = wINT(0)
+            if m == 0:
+                se = [l - 1, l - 1]
+            else:
+                if se[0] != 0:
+                    se[0] -= 1
+                else:
+                    se[1] -= 1
+            sampleSpace = []
+            for x in range(se[0], se[1] + 1):
+                sampleSpace.append(x)
+            sX = mX - m
+            for x in range(len(sampleSpace)):
+                for y in range(len(sampleSpace)):
+                    if int(sampleSpace[x]) + int(sampleSpace[y]) == sX:
+                        cVal += wINT(int(a[sampleSpace[x]]) * int(b[sampleSpace[y]]))
+            cVal += carry
+            if cVal > wINT(9):
+                out = cVal.val[-1] + out
+                carry = wINT(cVal.val[:-1])
+            else:
+                out = str(cVal.val) + out
+                carry = wINT(0)
+            print('\b' * vLen, end='')
+            vLen = len(out)
+            print(out, end='')
+        if negate:
+            out = '-' + out
+            print('\b' * vLen, end='')
+            vLen = len(out)
+            print(out, end='')
+        print('\b' * (vLen + introLen), end='')
+        return wINT(out)
+
     def __gt__(self, other):
         a, b = self.unify(self.val, other.val)
         for x in range(len(a)):
@@ -118,6 +169,33 @@ class wINT:
             if int(a[x]) < int(b[x]):
                 return False
         return False
+
+    def __lt__(self, other):
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) < int(b[x]):
+                return True
+            if int(a[x]) > int(b[x]):
+                return False
+        return False
+
+    def __ge__(self, other):
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) > int(b[x]):
+                return True
+            if int(a[x]) < int(b[x]):
+                return False
+        return True
+
+    def __le__(self, other):
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) < int(b[x]):
+                return True
+            if int(a[x]) > int(b[x]):
+                return False
+        return True
 
     def __neg__(self):
         if self.isNegative:
