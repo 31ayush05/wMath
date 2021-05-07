@@ -1,4 +1,4 @@
-class wINT:
+class wInt:
 
     def __init__(self, val):
         self.isNegative = False
@@ -58,13 +58,13 @@ class wINT:
             return out
 
         if self.isNegative and (not other.isNegative):  # (+) + (-)
-            return wINT(other.val) - wINT(self.val)
+            return wInt(other.val) - wInt(self.val)
         elif (not self.isNegative) and other.isNegative:  # (-) + (+)
-            return wINT(self.val) - wINT(other.val)
+            return wInt(self.val) - wInt(other.val)
         elif self.isNegative and other.isNegative:  # (-) + (-)
-            return wINT('-' + ADD(self, self.val, other.val))
+            return wInt('-' + ADD(self, self.val, other.val))
         else:  # (+) + (+)
-            return wINT(ADD(self, self.val, other.val))
+            return wInt(ADD(self, self.val, other.val))
 
     def __sub__(self, other):
 
@@ -78,7 +78,7 @@ class wINT:
             if a == b:
                 print('\b' * introLen, end='')
                 return '0'
-            if wINT(b) > wINT(a):
+            if wInt(b) > wInt(a):
                 a, b = b, a
                 negate = True
             for x in range(len(a) - 1, -1, -1):
@@ -107,13 +107,13 @@ class wINT:
             return out
 
         if self.isNegative and (not other.isNegative):  # (-) - (+)
-            return wINT('-' + (wINT(self.val) + wINT(other.val)).val)
+            return wInt('-' + (wInt(self.val) + wInt(other.val)).val)
         elif (not self.isNegative) and other.isNegative:  # (+) - (-)
-            return wINT(other.val) + wINT(self.val)
+            return wInt(other.val) + wInt(self.val)
         elif self.isNegative and other.isNegative:  # (-) - (-)
-            return wINT(SUB(self, other.val, self.val))
+            return wInt(SUB(self, other.val, self.val))
         else:  # (+) - (+)
-            return wINT(SUB(self, self.val, other.val))
+            return wInt(SUB(self, self.val, other.val))
 
     def __mul__(self, other):
         negate = self.isNegative ^ other.isNegative
@@ -124,10 +124,10 @@ class wINT:
         l = len(a)
         mX = 2 * (l - 1)
         se = []
-        carry = wINT(0)
+        carry = wInt(0)
         out = ''
         for m in range(2 * l - 1):
-            cVal = wINT(0)
+            cVal = wInt(0)
             if m == 0:
                 se = [l - 1, l - 1]
             else:
@@ -142,14 +142,14 @@ class wINT:
             for x in range(len(sampleSpace)):
                 for y in range(len(sampleSpace)):
                     if int(sampleSpace[x]) + int(sampleSpace[y]) == sX:
-                        cVal += wINT(int(a[sampleSpace[x]]) * int(b[sampleSpace[y]]))
+                        cVal += wInt(int(a[sampleSpace[x]]) * int(b[sampleSpace[y]]))
             cVal += carry
-            if cVal > wINT(9):
+            if cVal > wInt(9):
                 out = cVal.val[-1] + out
-                carry = wINT(cVal.val[:-1])
+                carry = wInt(cVal.val[:-1])
             else:
                 out = str(cVal.val) + out
-                carry = wINT(0)
+                carry = wInt(0)
             print('\b' * vLen, end='')
             vLen = len(out)
             print(out, end='')
@@ -159,7 +159,7 @@ class wINT:
             vLen = len(out)
             print(out, end='')
         print('\b' * (vLen + introLen), end='')
-        return wINT(out)
+        return wInt(out)
 
     def __gt__(self, other):
         a, b = self.unify(self.val, other.val)
@@ -197,6 +197,15 @@ class wINT:
                 return False
         return True
 
+    def __iadd__(self, other):
+        return self + other
+
+    def __isub__(self, other):
+        return self - other
+
+    def __imul__(self, other):
+        return self * other
+
     def __neg__(self):
         if self.isNegative:
             self.isNegative = False
@@ -209,6 +218,9 @@ class wINT:
             out += '-'
         out += self.val
         return out
+
+    def __abs__(self):
+        return wInt(self.val)
 
     @staticmethod
     def unify(a, b):
