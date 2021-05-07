@@ -1,6 +1,10 @@
+import wFloat
+
+
 class wInt:
 
-    def __init__(self, val):
+    def __init__(self, val, decimalDetail=32):
+        self.lOd = decimalDetail
         self.isNegative = False
         self.val = '0'
         if isinstance(val, int):
@@ -160,6 +164,12 @@ class wInt:
             print(out, end='')
         print('\b' * (vLen + introLen), end='')
         return wInt(out)
+
+    def __truediv__(self, other):
+        return wFloat.wFloat(self.val, self.lOd) / wFloat.wFloat(other.val, other.lOd)
+
+    def __floordiv__(self, other):
+        return wInt((self / other).lDec, max([self.lOd, other.lOd]))
 
     def __gt__(self, other):
         a, b = self.unify(self.val, other.val)
