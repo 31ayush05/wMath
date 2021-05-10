@@ -184,6 +184,12 @@ class wInt:
     def __floordiv__(self, other):
         return wInt((self / other).lDec, max([self.lOd, other.lOd]))
 
+    def __eq__(self, other):
+        if self.val == other.val:
+            if self.isNegative == other.isNegative:
+                return True
+        return False
+
     def __gt__(self, other):
         if isinstance(other, int):
             other = wInt(other)
@@ -253,6 +259,12 @@ class wInt:
     def __imul__(self, other):
         return self * other
 
+    def __idiv__(self, other):
+        return self / other
+
+    def __ifloordiv__(self, other):
+        return self // other
+
     def __neg__(self):
         if self.isNegative:
             self.isNegative = False
@@ -267,7 +279,9 @@ class wInt:
         return out
 
     def __abs__(self):
-        return wInt(self.val)
+        k = self
+        k.isNegative = False
+        return k
 
     @staticmethod
     def unify(a, b):
