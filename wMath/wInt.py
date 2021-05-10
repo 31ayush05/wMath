@@ -36,8 +36,8 @@ class wInt:
     def __add__(self, other):
 
         def ADD(classAccess, a, b):
-            print('ADD ' + a + ' + ' + b + ' = ', end='')
-            introLen = 10 + len(a + b)
+            print(' ADD ' + a + ' + ' + b + ' = ', end='')
+            introLen = 11 + len(a + b)
             vLen = 0
             a, b = classAccess.unify(a, b)
             out = ''
@@ -73,8 +73,8 @@ class wInt:
     def __sub__(self, other):
 
         def SUB(classAccess, a, b):
-            print('SUB ' + a + ' - ' + b + ' = ', end='')
-            introLen = 10 + len(a + b)
+            print(' SUB ' + a + ' - ' + b + ' = ', end='')
+            introLen = 11 + len(a + b)
             vLen = 0
             a, b = classAccess.unify(a, b)
             out = ''
@@ -93,8 +93,17 @@ class wInt:
                                 a = a[:y] + '9' + a[y + 1:]
                             else:
                                 a = a[:y] + str(int(a[y]) - 1) + a[y + 1:]
+                                break
                     else:
-                        a = a[:x - 1] + str(int(a[x - 1]) - 1) + a[x:]
+                        if a[x - 1] == '0':
+                            for z in range(x - 1, -1, -1):
+                                if a[z] == '0':
+                                    a = a[:z] + '9' + a[z + 1:]
+                                else:
+                                    a = a[:z] + str(int(a[z]) - 1) + a[z + 1:]
+                                    break
+                        else:
+                            a = a[:x - 1] + str(int(a[x - 1]) - 1) + a[x:]
                     cVal = str(10 + int(a[x]) - int(b[x]))
                 else:
                     cVal = int(a[x]) - int(b[x])
@@ -120,9 +129,11 @@ class wInt:
             return wInt(SUB(self, self.val, other.val))
 
     def __mul__(self, other):
+        if isinstance(other, int):
+            other = wInt(other)
         negate = self.isNegative ^ other.isNegative
-        print('MUL ' + self.val + ' * ' + other.val + ' = ', end='')
-        introLen = 10 + len(self.val + other.val)
+        print(' MUL ' + self.val + ' * ' + other.val + ' = ', end='')
+        introLen = 11 + len(self.val + other.val)
         vLen = 0
         a, b = self.unify(self.val, other.val)
         l = len(a)
@@ -157,6 +168,8 @@ class wInt:
             print('\b' * vLen, end='')
             vLen = len(out)
             print(out, end='')
+        if carry > wInt(0):
+            out = carry.val + out
         if negate:
             out = '-' + out
             print('\b' * vLen, end='')
@@ -172,38 +185,62 @@ class wInt:
         return wInt((self / other).lDec, max([self.lOd, other.lOd]))
 
     def __gt__(self, other):
+        if isinstance(other, int):
+            other = wInt(other)
         a, b = self.unify(self.val, other.val)
         for x in range(len(a)):
             if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return False
                 return True
             if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return True
                 return False
         return False
 
     def __lt__(self, other):
+        if isinstance(other, int):
+            other = wInt(other)
         a, b = self.unify(self.val, other.val)
         for x in range(len(a)):
             if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return False
                 return True
             if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return True
                 return False
         return False
 
     def __ge__(self, other):
+        if isinstance(other, int):
+            other = wInt(other)
         a, b = self.unify(self.val, other.val)
         for x in range(len(a)):
             if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return False
                 return True
             if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return True
                 return False
         return True
 
     def __le__(self, other):
+        if isinstance(other, int):
+            other = wInt(other)
         a, b = self.unify(self.val, other.val)
         for x in range(len(a)):
             if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return False
                 return True
             if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return True
                 return False
         return True
 
