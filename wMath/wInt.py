@@ -13,13 +13,44 @@ class wInt:
                 self.val = str(-val)
             else:
                 self.val = str(val)
+        if isinstance(val, float):
+            if val < 0:
+                self.isNegative = True
+                val = str(-val)
+            else:
+                val = str(val)
+            for x in val:
+                if x == '.':
+                    break
+                else:
+                    self.val += x
         if isinstance(val, str):
+            add = True
+            k = ''
             if val[0] == '-':
                 self.isNegative = True
-                self.val = val[1:]
-            else:
-                self.isNegative = False
-                self.val = val
+                val = val[1:]
+            for x in val:
+                if add:
+                    if x in '.0123456789':
+                        if x == '.':
+                            add = False
+                        else:
+                            k += x
+                    else:
+                        raise ValueError('Invalid value for wInt')
+                else:
+                    if x not in '01234567989':
+                        raise ValueError('Invalid value for wInt')
+            self.val = k
+        if isinstance(val, wInt):
+            self.isNegative = val.isNegative
+            self.lOd = val.lOd
+            self.val = val.val
+        if isinstance(val, wFloat.wFloat):
+            self.isNegative = val.isNegative
+            self.lOd = val.lOd
+            self.val = val.lDec
         c0 = -1
         for x in self.val:
             if x == '0':
@@ -61,6 +92,7 @@ class wInt:
             print('\b' * (vLen + introLen), end='')
             return out
 
+        other = self.otherFix(other)
         if self.isNegative and (not other.isNegative):  # (+) + (-)
             return wInt(other.val) - wInt(self.val)
         elif (not self.isNegative) and other.isNegative:  # (-) + (+)
@@ -119,6 +151,7 @@ class wInt:
             print('\b' * (vLen + introLen), end='')
             return out
 
+        other = self.otherFix(other)
         if self.isNegative and (not other.isNegative):  # (-) - (+)
             return wInt('-' + (wInt(self.val) + wInt(other.val)).val)
         elif (not self.isNegative) and other.isNegative:  # (+) - (-)
@@ -129,8 +162,7 @@ class wInt:
             return wInt(SUB(self, self.val, other.val))
 
     def __mul__(self, other):
-        if isinstance(other, int):
-            other = wInt(other)
+        other = self.otherFix(other)
         negate = self.isNegative ^ other.isNegative
         print(' MUL ' + self.val + ' * ' + other.val + ' = ', end='')
         introLen = 11 + len(self.val + other.val)
@@ -179,18 +211,22 @@ class wInt:
         return wInt(out)
 
     def __truediv__(self, other):
+        other = self.otherFix(other)
         return wFloat.wFloat(self.val, self.lOd) / wFloat.wFloat(other.val, other.lOd)
 
     def __floordiv__(self, other):
+        other = self.otherFix(other)
         return wInt((self / other).lDec, max([self.lOd, other.lOd]))
 
     def __eq__(self, other):
+        other = self.otherFix(other)
         if self.val == other.val:
             if self.isNegative == other.isNegative:
                 return True
         return False
 
     def __gt__(self, other):
+        other = self.otherFix(other)
         if isinstance(other, int):
             other = wInt(other)
         a, b = self.unify(self.val, other.val)
@@ -206,6 +242,7 @@ class wInt:
         return False
 
     def __lt__(self, other):
+        other = self.otherFix(other)
         if isinstance(other, int):
             other = wInt(other)
         a, b = self.unify(self.val, other.val)
@@ -221,6 +258,7 @@ class wInt:
         return False
 
     def __ge__(self, other):
+        other = self.otherFix(other)
         if isinstance(other, int):
             other = wInt(other)
         a, b = self.unify(self.val, other.val)
@@ -236,6 +274,7 @@ class wInt:
         return True
 
     def __le__(self, other):
+        other = self.otherFix(other)
         if isinstance(other, int):
             other = wInt(other)
         a, b = self.unify(self.val, other.val)
@@ -251,25 +290,32 @@ class wInt:
         return True
 
     def __iadd__(self, other):
+        other = self.otherFix(other)
         return self + other
 
     def __isub__(self, other):
+        other = self.otherFix(other)
         return self - other
 
     def __imul__(self, other):
+        other = self.otherFix(other)
         return self * other
 
     def __idiv__(self, other):
+        other = self.otherFix(other)
         return self / other
 
     def __ifloordiv__(self, other):
+        other = self.otherFix(other)
         return self // other
 
     def __neg__(self):
+        k = self
         if self.isNegative:
-            self.isNegative = False
+            k.isNegative = False
         else:
-            self.isNegative = True
+            k.isNegative = True
+        return k
 
     def __str__(self):
         out = ''
@@ -282,6 +328,49 @@ class wInt:
         k = self
         k.isNegative = False
         return k
+
+    @staticmethod
+    def otherFix(other):
+        if isinstance(other, wInt):
+            pass
+        elif isinstance(other, int):
+            other = wInt(other)
+        elif isinstance(other, wFloat.wFloat):
+            j = wInt(0)
+            j.isNegative = other.isNegative
+            j.lOd = other.lOd
+            j.val = other.lDec
+            other = j
+        elif isinstance(other, float):
+            if other < 0:
+                other = wInt('-' + str(-other))
+            else:
+                other = wInt(str(other))
+        elif isinstance(other, str):
+            add = True
+            j = wInt(0)
+            k = ''
+            if other[0] == '-':
+                j.isNegative = True
+                other = other[1:]
+            for x in other:
+                if add:
+                    if x in '.0123456789':
+                        if x == '.':
+                            add = False
+                        else:
+                            k += x
+                    else:
+                        raise ValueError('Invalid value for wInt')
+                else:
+                    if x not in '01234567989':
+                        raise ValueError('Invalid value for wInt')
+            j.val = k
+            other = j
+        else:
+            raise TypeError(
+                str(type(other)) + ' cannot be operated with wFloat. Give int, float, wInt or wFloat instead')
+        return other
 
     @staticmethod
     def unify(a, b):

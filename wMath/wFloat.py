@@ -41,6 +41,17 @@ class wFloat:
             else:
                 self.lDec = str(val)
             self.rDec = '0'
+        if isinstance(val, wInt.wInt):
+            if val < wInt.wInt(0):
+                self.isNegative = True
+            self.lDec = str(val)
+            self.rDec = '0'
+            self.lOd = val.lOd
+        if isinstance(val, wFloat):
+            self.isNegative = val.isNegative
+            self.lDec = val.lDec
+            self.rDec = val.rDec
+            self.lOd = val.lOd
         c0 = -1
         for x in self.lDec:
             if x == '0':
@@ -65,6 +76,7 @@ class wFloat:
             self.isNegative = False
 
     def __add__(self, other):
+        other = self.otherFix(other)
         if len(self.rDec) > len(other.rDec):
             m = len(self.rDec)
             c = self.lDec + self.rDec
@@ -89,6 +101,7 @@ class wFloat:
             return wFloat(a.val[:-2] + '.' + a.val[-2:])
 
     def __sub__(self, other):
+        other = self.otherFix(other)
         if len(self.rDec) > len(other.rDec):
             m = len(self.rDec)
             c = self.lDec + self.rDec
@@ -113,6 +126,7 @@ class wFloat:
             return wFloat(a.val[:-2] + '.' + a.val[-2:])
 
     def __mul__(self, other):
+        other = self.otherFix(other)
         lOd = min([self.lOd, other.lOd])
         c = wInt.wInt(self.lDec + self.rDec)
         d = wInt.wInt(other.lDec + other.rDec)
@@ -126,6 +140,7 @@ class wFloat:
             return wFloat(str(j), lOd)
 
     def __truediv__(self, other):
+        other = self.otherFix(other)
         print(' DIV ' + str(self) + ' * ' + str(other) + ' = ', end='')
         introLen = 11 + len(str(self) + str(other))
         vLen = 0
@@ -198,28 +213,36 @@ class wFloat:
             return wFloat(quo)
 
     def __floordiv__(self, other):
+        other = self.otherFix(other)
         return wFloat((self / other).lDec, min([self.lOd, other.lOd]))
 
     def __iadd__(self, other):
+        other = self.otherFix(other)
         return self + other
 
     def __isub__(self, other):
+        other = self.otherFix(other)
         return self - other
 
     def __imul__(self, other):
+        other = self.otherFix(other)
         return self * other
 
     def __idiv__(self, other):
+        other = self.otherFix(other)
         return self / other
 
     def __ifloordiv__(self, other):
+        other = self.otherFix(other)
         return self // other
 
     def __neg__(self):
+        k = self
         if self.isNegative:
-            self.isNegative = False
+            k.isNegative = False
         else:
-            self.isNegative = True
+            k.isNegative = True
+        return k
 
     def __str__(self):
         out = ''
@@ -229,6 +252,7 @@ class wFloat:
         return out
 
     def __eq__(self, other):
+        other = self.otherFix(other)
         if self.isNegative == other.isNegative:
             if self.lDec == other.lDec:
                 if self.rDec == other.rDec:
@@ -236,24 +260,28 @@ class wFloat:
         return False
 
     def __gt__(self, other):
+        other = self.otherFix(other)
         a, b = self.unify(self, other)
         if a > b:
             return True
         return False
 
     def __lt__(self, other):
+        other = self.otherFix(other)
         a, b = self.unify(self, other)
         if a < b:
             return True
         return False
 
     def __ge__(self, other):
+        other = self.otherFix(other)
         a, b = self.unify(self, other)
         if a >= b:
             return True
         return False
 
     def __le__(self, other):
+        other = self.otherFix(other)
         a, b = self.unify(self, other)
         if a <= b:
             return True
@@ -263,6 +291,27 @@ class wFloat:
         k = self
         k.isNegative = False
         return k
+
+    @staticmethod
+    def otherFix(other):
+        if isinstance(other, wInt.wInt):
+            j = wFloat('0.0')
+            j.lDec = other.val
+            j.rDec = '0'
+            j.isNegative = other.isNegative
+            other = j
+        elif isinstance(other, int):
+            other = wFloat(other)
+        elif isinstance(other, wFloat):
+            pass
+        elif isinstance(other, float):
+            other = wFloat(other)
+        elif isinstance(other, str):
+            other = wFloat(other)
+        else:
+            raise TypeError(
+                str(type(other)) + ' cannot be operated with wFloat. Give int, float, wInt or wFloat instead')
+        return other
 
     @staticmethod
     def unify(a, b):
