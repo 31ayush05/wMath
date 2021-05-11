@@ -1,7 +1,7 @@
-import wInt
+import wINT
 
 
-class wFloat:
+class weirdFLOAT:
 
     def __init__(self, val, decimalDetail=32):
 
@@ -41,13 +41,13 @@ class wFloat:
             else:
                 self.lDec = str(val)
             self.rDec = '0'
-        if isinstance(val, wInt.wInt):
-            if val < wInt.wInt(0):
+        if isinstance(val, wINT.weirdINT):
+            if val < wINT.weirdINT(0):
                 self.isNegative = True
             self.lDec = str(val)
             self.rDec = '0'
             self.lOd = val.lOd
-        if isinstance(val, wFloat):
+        if isinstance(val, weirdFLOAT):
             self.isNegative = val.isNegative
             self.lDec = val.lDec
             self.rDec = val.rDec
@@ -85,7 +85,7 @@ class wFloat:
             d = other.lDec + other.rDec + '0' * (m - len(other.rDec))
             if other.isNegative:
                 d = '-' + d
-            a = wInt.wInt(c) + wInt.wInt(d)
+            a = wINT.weirdINT(c) + wINT.weirdINT(d)
         else:
             m = len(other.rDec)
             c = other.lDec + other.rDec
@@ -94,11 +94,11 @@ class wFloat:
             d = self.lDec + self.rDec + '0' * (m - len(self.rDec))
             if self.isNegative:
                 d = '-' + d
-            a = wInt.wInt(c) + wInt.wInt(d)
+            a = wINT.weirdINT(c) + wINT.weirdINT(d)
         if a.isNegative:
-            return wFloat('-' + a.val[:-2] + '.' + a.val[-2:])
+            return weirdFLOAT('-' + a.val[:-m] + '.' + a.val[-m:])
         else:
-            return wFloat(a.val[:-2] + '.' + a.val[-2:])
+            return weirdFLOAT(a.val[:-m] + '.' + a.val[-m:])
 
     def __sub__(self, other):
         other = self.otherFix(other)
@@ -110,7 +110,7 @@ class wFloat:
             d = other.lDec + other.rDec + '0' * (m - len(other.rDec))
             if other.isNegative:
                 d = '-' + d
-            a = wInt.wInt(c) - wInt.wInt(d)
+            a = wINT.weirdINT(c) - wINT.weirdINT(d)
         else:
             m = len(other.rDec)
             c = self.lDec + self.rDec + '0' * (m - len(self.rDec))
@@ -119,25 +119,25 @@ class wFloat:
             d = other.lDec + other.rDec
             if other.isNegative:
                 d = '-' + d
-            a = wInt.wInt(c) - wInt.wInt(d)
+            a = wINT.weirdINT(c) - wINT.weirdINT(d)
         if a.isNegative:
-            return wFloat('-' + a.val[:-2] + '.' + a.val[-2:])
+            return weirdFLOAT('-' + a.val[:-2] + '.' + a.val[-2:])
         else:
-            return wFloat(a.val[:-2] + '.' + a.val[-2:])
+            return weirdFLOAT(a.val[:-2] + '.' + a.val[-2:])
 
     def __mul__(self, other):
         other = self.otherFix(other)
         lOd = min([self.lOd, other.lOd])
-        c = wInt.wInt(self.lDec + self.rDec)
-        d = wInt.wInt(other.lDec + other.rDec)
+        c = wINT.weirdINT(self.lDec + self.rDec)
+        d = wINT.weirdINT(other.lDec + other.rDec)
         negate = self.isNegative ^ other.isNegative
         dLen = len(self.rDec + other.rDec)
         m = c * d
         j = str(m)[:-dLen] + '.' + str(m)[-dLen:]
         if negate:
-            return wFloat('-' + str(j), lOd)
+            return weirdFLOAT('-' + str(j), lOd)
         else:
-            return wFloat(str(j), lOd)
+            return weirdFLOAT(str(j), lOd)
 
     def __truediv__(self, other):
         other = self.otherFix(other)
@@ -148,10 +148,10 @@ class wFloat:
         if other.rDec != '0':
             dLen = len(other.rDec)
             add = self.rDec + '0' * dLen
-            o_divisor = wInt.wInt(other.lDec + other.rDec, other.lOd)
-            o_dividend = wFloat(self.lDec + add[:dLen] + '.' + self.rDec[dLen:], self.lOd)
+            o_divisor = wINT.weirdINT(other.lDec + other.rDec, other.lOd)
+            o_dividend = weirdFLOAT(self.lDec + add[:dLen] + '.' + self.rDec[dLen:], self.lOd)
         else:
-            o_divisor = wInt.wInt(other.lDec, other.lOd)
+            o_divisor = wINT.weirdINT(other.lDec, other.lOd)
             o_dividend = self
         dLen = min([o_dividend.lOd, o_divisor.lOd])
         n = o_dividend.rDec
@@ -176,22 +176,22 @@ class wFloat:
                     break
             n = n[:dLen]
             if i:
-                n = wInt.wInt(n) + wInt.wInt('0' * dLen + '1')
+                n = wINT.weirdINT(n) + wINT.weirdINT('0' * dLen + '1')
             else:
                 if fI:
                     if int(n[-1]) % 2 != 0:
-                        n = wInt.wInt(n) + wInt.wInt('0' * dLen + '1')
+                        n = wINT.weirdINT(n) + wINT.weirdINT('0' * dLen + '1')
         o_dividend = o_dividend.lDec + '.' + n
         quo = ''
-        dVal = wInt.wInt(0)
+        dVal = wINT.weirdINT(0)
         while len(o_dividend) > 0:
             if o_dividend[0] != '.':
-                dVal = wInt.wInt(dVal.val + o_dividend[0], 0)
+                dVal = wINT.weirdINT(dVal.val + o_dividend[0], 0)
                 o_dividend = o_dividend[1:]
             else:
                 quo += '.'
                 o_dividend = o_dividend[1:]
-                dVal = wInt.wInt(dVal.val + o_dividend[0], 0)
+                dVal = wINT.weirdINT(dVal.val + o_dividend[0], 0)
                 o_dividend = o_dividend[1:]
             for x in range(10):
                 k = o_divisor * x
@@ -208,13 +208,13 @@ class wFloat:
             vLen = len(quo)
         print('\b' * (vLen + introLen), end='')
         if negate:
-            return wFloat('-' + quo)
+            return weirdFLOAT('-' + quo)
         else:
-            return wFloat(quo)
+            return weirdFLOAT(quo)
 
     def __floordiv__(self, other):
         other = self.otherFix(other)
-        return wFloat((self / other).lDec, min([self.lOd, other.lOd]))
+        return weirdFLOAT((self / other).lDec, min([self.lOd, other.lOd]))
 
     def __iadd__(self, other):
         other = self.otherFix(other)
@@ -243,13 +243,6 @@ class wFloat:
         else:
             k.isNegative = True
         return k
-
-    def __str__(self):
-        out = ''
-        if self.isNegative:
-            out += '-'
-        out += self.lDec + '.' + self.rDec
-        return out
 
     def __eq__(self, other):
         other = self.otherFix(other)
@@ -292,22 +285,68 @@ class wFloat:
         k.isNegative = False
         return k
 
+    def __round__(self, n=None):
+        isN = False
+        if n is None:
+            n = 0
+            isN = True
+        if self.isNegative:
+            out = '-' + self.lDec
+        else:
+            out = self.lDec
+        out += '.' + self.rDec[:n]
+        fI = False
+        breakIT = False
+        i = False
+        for x in self.rDec[n:]:
+            if fI:
+                if x in '123456789':
+                    i = True
+                    breakIT = True
+            if (x in '01234') and (not fI):
+                i = False
+                break
+            if (x in '6789') and (not fI):
+                i = True
+                break
+            if (x == '5') and (not fI):
+                fI = True
+            if breakIT:
+                break
+        if fI and (not i):
+            if int(out[-1]) % 2 != 0:
+                i = True
+        if i:
+            j = weirdFLOAT(out) + weirdFLOAT('0.' + '0' * (n - 1) + '1')
+        else:
+            j = weirdFLOAT(out)
+        if isN:
+            return wINT.weirdINT(j)
+        return j
+
+    def __str__(self):
+        out = ''
+        if self.isNegative:
+            out += '-'
+        out += self.lDec + '.' + self.rDec
+        return out
+
     @staticmethod
     def otherFix(other):
-        if isinstance(other, wInt.wInt):
-            j = wFloat('0.0')
+        if isinstance(other, wINT.weirdINT):
+            j = weirdFLOAT('0.0')
             j.lDec = other.val
             j.rDec = '0'
             j.isNegative = other.isNegative
             other = j
         elif isinstance(other, int):
-            other = wFloat(other)
-        elif isinstance(other, wFloat):
+            other = weirdFLOAT(other)
+        elif isinstance(other, weirdFLOAT):
             pass
         elif isinstance(other, float):
-            other = wFloat(other)
+            other = weirdFLOAT(other)
         elif isinstance(other, str):
-            other = wFloat(other)
+            other = weirdFLOAT(other)
         else:
             raise TypeError(
                 str(type(other)) + ' cannot be operated with wFloat. Give int, float, wInt or wFloat instead')
@@ -318,23 +357,23 @@ class wFloat:
         if len(a.rDec) > len(b.rDec):
             m = a.lDec + a.rDec
             if a.isNegative:
-                m = wInt.wInt('-' + m)
+                m = wINT.weirdINT('-' + m)
             else:
-                m = wInt.wInt(m)
+                m = wINT.weirdINT(m)
             n = b.lDec + b.rDec + '0' * (len(a.rDec) - len(b.rDec))
             if b.isNegative:
-                n = wInt.wInt('-' + n)
+                n = wINT.weirdINT('-' + n)
             else:
-                n = wInt.wInt(n)
+                n = wINT.weirdINT(n)
         else:
             m = a.lDec + a.rDec + '0' * (len(b.rDec) - len(a.rDec))
             if a.isNegative:
-                m = wInt.wInt('-' + m)
+                m = wINT.weirdINT('-' + m)
             else:
-                m = wInt.wInt(m)
+                m = wINT.weirdINT(m)
             n = b.lDec + b.rDec
             if b.isNegative:
-                n = wInt.wInt('-' + n)
+                n = wINT.weirdINT('-' + n)
             else:
-                n = wInt.wInt(n)
+                n = wINT.weirdINT(n)
         return m, n

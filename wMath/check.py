@@ -1,2 +1,2 @@
-import wFloat
-import wInt
+import wFLOAT
+import wINT

@@ -1,7 +1,7 @@
-import wFloat
+import wFLOAT
 
 
-class wInt:
+class weirdINT:
 
     def __init__(self, val, decimalDetail=32):
         self.lOd = decimalDetail
@@ -43,11 +43,11 @@ class wInt:
                     if x not in '01234567989':
                         raise ValueError('Invalid value for wInt')
             self.val = k
-        if isinstance(val, wInt):
+        if isinstance(val, weirdINT):
             self.isNegative = val.isNegative
             self.lOd = val.lOd
             self.val = val.val
-        if isinstance(val, wFloat.wFloat):
+        if isinstance(val, wFLOAT.weirdFLOAT):
             self.isNegative = val.isNegative
             self.lOd = val.lOd
             self.val = val.lDec
@@ -94,13 +94,13 @@ class wInt:
 
         other = self.otherFix(other)
         if self.isNegative and (not other.isNegative):  # (+) + (-)
-            return wInt(other.val) - wInt(self.val)
+            return weirdINT(other.val) - weirdINT(self.val)
         elif (not self.isNegative) and other.isNegative:  # (-) + (+)
-            return wInt(self.val) - wInt(other.val)
+            return weirdINT(self.val) - weirdINT(other.val)
         elif self.isNegative and other.isNegative:  # (-) + (-)
-            return wInt('-' + ADD(self, self.val, other.val))
+            return weirdINT('-' + ADD(self, self.val, other.val))
         else:  # (+) + (+)
-            return wInt(ADD(self, self.val, other.val))
+            return weirdINT(ADD(self, self.val, other.val))
 
     def __sub__(self, other):
 
@@ -114,7 +114,7 @@ class wInt:
             if a == b:
                 print('\b' * introLen, end='')
                 return '0'
-            if wInt(b) > wInt(a):
+            if weirdINT(b) > weirdINT(a):
                 a, b = b, a
                 negate = True
             for x in range(len(a) - 1, -1, -1):
@@ -153,13 +153,13 @@ class wInt:
 
         other = self.otherFix(other)
         if self.isNegative and (not other.isNegative):  # (-) - (+)
-            return wInt('-' + (wInt(self.val) + wInt(other.val)).val)
+            return weirdINT('-' + (weirdINT(self.val) + weirdINT(other.val)).val)
         elif (not self.isNegative) and other.isNegative:  # (+) - (-)
-            return wInt(other.val) + wInt(self.val)
+            return weirdINT(other.val) + weirdINT(self.val)
         elif self.isNegative and other.isNegative:  # (-) - (-)
-            return wInt(SUB(self, other.val, self.val))
+            return weirdINT(SUB(self, other.val, self.val))
         else:  # (+) - (+)
-            return wInt(SUB(self, self.val, other.val))
+            return weirdINT(SUB(self, self.val, other.val))
 
     def __mul__(self, other):
         other = self.otherFix(other)
@@ -171,10 +171,10 @@ class wInt:
         l = len(a)
         mX = 2 * (l - 1)
         se = []
-        carry = wInt(0)
+        carry = weirdINT(0)
         out = ''
         for m in range(2 * l - 1):
-            cVal = wInt(0)
+            cVal = weirdINT(0)
             if m == 0:
                 se = [l - 1, l - 1]
             else:
@@ -189,18 +189,18 @@ class wInt:
             for x in range(len(sampleSpace)):
                 for y in range(len(sampleSpace)):
                     if int(sampleSpace[x]) + int(sampleSpace[y]) == sX:
-                        cVal += wInt(int(a[sampleSpace[x]]) * int(b[sampleSpace[y]]))
+                        cVal += weirdINT(int(a[sampleSpace[x]]) * int(b[sampleSpace[y]]))
             cVal += carry
-            if cVal > wInt(9):
+            if cVal > weirdINT(9):
                 out = cVal.val[-1] + out
-                carry = wInt(cVal.val[:-1])
+                carry = weirdINT(cVal.val[:-1])
             else:
                 out = str(cVal.val) + out
-                carry = wInt(0)
+                carry = weirdINT(0)
             print('\b' * vLen, end='')
             vLen = len(out)
             print(out, end='')
-        if carry > wInt(0):
+        if carry > weirdINT(0):
             out = carry.val + out
         if negate:
             out = '-' + out
@@ -208,86 +208,15 @@ class wInt:
             vLen = len(out)
             print(out, end='')
         print('\b' * (vLen + introLen), end='')
-        return wInt(out)
+        return weirdINT(out)
 
     def __truediv__(self, other):
         other = self.otherFix(other)
-        return wFloat.wFloat(self.val, self.lOd) / wFloat.wFloat(other.val, other.lOd)
+        return wFLOAT.weirdFLOAT(self.val, self.lOd) / wFLOAT.weirdFLOAT(other.val, other.lOd)
 
     def __floordiv__(self, other):
         other = self.otherFix(other)
-        return wInt((self / other).lDec, max([self.lOd, other.lOd]))
-
-    def __eq__(self, other):
-        other = self.otherFix(other)
-        if self.val == other.val:
-            if self.isNegative == other.isNegative:
-                return True
-        return False
-
-    def __gt__(self, other):
-        other = self.otherFix(other)
-        if isinstance(other, int):
-            other = wInt(other)
-        a, b = self.unify(self.val, other.val)
-        for x in range(len(a)):
-            if int(a[x]) > int(b[x]):
-                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
-                    return False
-                return True
-            if int(a[x]) < int(b[x]):
-                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
-                    return True
-                return False
-        return False
-
-    def __lt__(self, other):
-        other = self.otherFix(other)
-        if isinstance(other, int):
-            other = wInt(other)
-        a, b = self.unify(self.val, other.val)
-        for x in range(len(a)):
-            if int(a[x]) < int(b[x]):
-                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
-                    return False
-                return True
-            if int(a[x]) > int(b[x]):
-                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
-                    return True
-                return False
-        return False
-
-    def __ge__(self, other):
-        other = self.otherFix(other)
-        if isinstance(other, int):
-            other = wInt(other)
-        a, b = self.unify(self.val, other.val)
-        for x in range(len(a)):
-            if int(a[x]) > int(b[x]):
-                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
-                    return False
-                return True
-            if int(a[x]) < int(b[x]):
-                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
-                    return True
-                return False
-        return True
-
-    def __le__(self, other):
-        other = self.otherFix(other)
-        if isinstance(other, int):
-            other = wInt(other)
-        a, b = self.unify(self.val, other.val)
-        for x in range(len(a)):
-            if int(a[x]) < int(b[x]):
-                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
-                    return False
-                return True
-            if int(a[x]) > int(b[x]):
-                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
-                    return True
-                return False
-        return True
+        return weirdINT((self / other).lDec, max([self.lOd, other.lOd]))
 
     def __iadd__(self, other):
         other = self.otherFix(other)
@@ -317,6 +246,85 @@ class wInt:
             k.isNegative = True
         return k
 
+    def __eq__(self, other):
+        other = self.otherFix(other)
+        if self.val == other.val:
+            if self.isNegative == other.isNegative:
+                return True
+        return False
+
+    def __gt__(self, other):
+        other = self.otherFix(other)
+        if isinstance(other, int):
+            other = weirdINT(other)
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return False
+                return True
+            if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return True
+                return False
+        return False
+
+    def __lt__(self, other):
+        other = self.otherFix(other)
+        if isinstance(other, int):
+            other = weirdINT(other)
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return False
+                return True
+            if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return True
+                return False
+        return False
+
+    def __ge__(self, other):
+        other = self.otherFix(other)
+        if isinstance(other, int):
+            other = weirdINT(other)
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return False
+                return True
+            if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return True
+                return False
+        return True
+
+    def __le__(self, other):
+        other = self.otherFix(other)
+        if isinstance(other, int):
+            other = weirdINT(other)
+        a, b = self.unify(self.val, other.val)
+        for x in range(len(a)):
+            if int(a[x]) < int(b[x]):
+                if ((not self.isNegative) and other.isNegative) or (self.isNegative and other.isNegative):
+                    return False
+                return True
+            if int(a[x]) > int(b[x]):
+                if (self.isNegative and (not other.isNegative)) or (self.isNegative and other.isNegative):
+                    return True
+                return False
+        return True
+
+    def __abs__(self):
+        k = self
+        k.isNegative = False
+        return k
+
+    def __round__(self, n=None):
+        return self
+
     def __str__(self):
         out = ''
         if self.isNegative:
@@ -324,31 +332,26 @@ class wInt:
         out += self.val
         return out
 
-    def __abs__(self):
-        k = self
-        k.isNegative = False
-        return k
-
     @staticmethod
     def otherFix(other):
-        if isinstance(other, wInt):
+        if isinstance(other, weirdINT):
             pass
         elif isinstance(other, int):
-            other = wInt(other)
-        elif isinstance(other, wFloat.wFloat):
-            j = wInt(0)
+            other = weirdINT(other)
+        elif isinstance(other, wFLOAT.weirdFLOAT):
+            j = weirdINT(0)
             j.isNegative = other.isNegative
             j.lOd = other.lOd
             j.val = other.lDec
             other = j
         elif isinstance(other, float):
             if other < 0:
-                other = wInt('-' + str(-other))
+                other = weirdINT('-' + str(-other))
             else:
-                other = wInt(str(other))
+                other = weirdINT(str(other))
         elif isinstance(other, str):
             add = True
-            j = wInt(0)
+            j = weirdINT(0)
             k = ''
             if other[0] == '-':
                 j.isNegative = True
